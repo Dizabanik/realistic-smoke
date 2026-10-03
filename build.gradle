@@ -1,0 +1,69 @@
+plugins {
+    id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
+    id 'maven-publish'
+}
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+    archivesName = project.archives_base_name
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+}
+
+def valueMap = [version: project.version]
+processResources {
+    inputs.properties valueMap
+    filesMatching('fabric.mod.json') {
+        expand valueMap
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = 21
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+    withSourcesJar()
+}
+
+apply from: 'src/regressionFixtures/regression-fixtures.gradle'
+
+def regressionTasks = []
+['SmokeCellGeometryTest', 'SmokeTransportTest', 'SmokeSourceAdmissionTest', 'SmokeParticleRendererTest'].each { testClass ->
+    regressionTasks.add(tasks.register("run${testClass}", JavaExec) {
+        group = 'verification'
+        description = "Run standalone ${testClass} regression checks."
+        dependsOn tasks.named('testClasses')
+        classpath = sourceSets.test.runtimeClasspath
+        mainClass = "dev.dizabanik.realisticsmoke.${testClass}"
+    })
+}
+
+tasks.register('regressionTests') {
+    group = 'verification'
+    description = 'Run smoke geometry, transport, admission, renderer, config, and exposure checks.'
+    dependsOn regressionTasks
+    dependsOn tasks.named('regressionFixtureTests')
+}
+
+tasks.named('test') {
+    failOnNoDiscoveredTests = false
+    dependsOn tasks.named('regressionTests')
+}
+
+tasks.named('check') {
+    dependsOn tasks.named('regressionTests')
+}

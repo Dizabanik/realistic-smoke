@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "realistic_smoke",
+  "version": "${version}",
+  "name": "Realistic Smoke",
+  "description": "Optimized server-authoritative smoke accumulation, ventilation and smoke inhalation for furnaces and campfires.",
+  "authors": ["dizabanik"],
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["dev.dizabanik.realisticsmoke.RealisticSmokeMod"]
+  },
+  "mixins": ["realistic-smoke.mixins.json"],
+  "depends": {
+    "fabricloader": ">=0.18.1",
+    "minecraft": "~1.21.11",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}

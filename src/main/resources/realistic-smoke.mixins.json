@@ -1,0 +1,9 @@
+{
+  "required": true,
+  "package": "dev.dizabanik.realisticsmoke.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": ["WorldChunkMixin"],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

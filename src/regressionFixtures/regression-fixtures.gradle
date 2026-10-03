@@ -1,0 +1,38 @@
+allprojects {
+    plugins.withId('java') {
+        def fixtureClasses = layout.buildDirectory.dir('regressionFixtures/classes')
+        def compileFixtures = tasks.register('compileRegressionFixtures', JavaCompile) {
+            group = 'verification'
+            description = 'Compile real smoke config, tracker, manager, and simulation helpers with isolated fakes.'
+            source fileTree('src/regressionFixtures/java') { include '**/*.java' }
+            source files(
+                'src/main/java/dev/dizabanik/realisticsmoke/SmokeConfig.java',
+                'src/main/java/dev/dizabanik/realisticsmoke/SmokeExposureTracker.java',
+                'src/main/java/dev/dizabanik/realisticsmoke/SmokeManager.java',
+                'src/main/java/dev/dizabanik/realisticsmoke/SmokeCellGeometry.java',
+                'src/main/java/dev/dizabanik/realisticsmoke/SmokeTransport.java',
+                'src/main/java/dev/dizabanik/realisticsmoke/SmokeSourceAdmission.java'
+            )
+            classpath = sourceSets.main.compileClasspath
+            destinationDirectory = fixtureClasses
+            options.release = 21
+            options.sourcepath = files('src/regressionFixtures/java')
+        }
+        def managerFixtures = tasks.register('runSmokeManagerFixtureTests', JavaExec) {
+            group = 'verification'
+            description = 'Run real SmokeManager simulation regressions against an isolated fake world.'
+            dependsOn compileFixtures
+            classpath = files(fixtureClasses) + sourceSets.main.compileClasspath
+            mainClass = 'dev.dizabanik.realisticsmoke.SmokeManagerFixtureTests'
+            args layout.buildDirectory.dir('regressionFixtures/work').get().asFile.absolutePath
+        }
+        tasks.register('regressionFixtureTests', JavaExec) {
+            group = 'verification'
+            description = 'Run isolated smoke regressions without launching Minecraft.'
+            dependsOn compileFixtures, managerFixtures
+            classpath = files(fixtureClasses) + sourceSets.main.compileClasspath
+            mainClass = 'dev.dizabanik.realisticsmoke.RegressionFixtureTests'
+            args layout.buildDirectory.dir('regressionFixtures/work').get().asFile.absolutePath
+        }
+    }
+}
