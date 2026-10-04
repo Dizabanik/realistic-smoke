@@ -1,6 +1,6 @@
-# Realistic Smoke (Fabric 1.21.11)
+# Realistic Smoke 
 
-A server-authoritative smoke and ventilation mod inspired by Valheim-style building constraints. It runs entirely on the server, so players connecting to a dedicated server do not need a client-side mod installed.
+A server-side smoke and ventilation mod inspired by Valheim-style building constraints. Players connecting to a server do not need a client-side mod installed.
 
 ## Gameplay
 
